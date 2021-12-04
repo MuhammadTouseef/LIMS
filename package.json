@@ -11,9 +11,11 @@
   "author": "Muhammad Touseef",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "oracledb": "^5.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
