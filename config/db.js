@@ -1,7 +1,15 @@
 const oracledb = require("oracledb");
 
+const connection = ()=> {
+  return({
+    user: process.env.dbusername,
+    password: process.env.dbpassword,
+    connectString: process.env.connectionstring,
+  })
+}
+/*
 const dbcon = async (query) => {
-  console.log(process.env.connectionstring);
+ 
   try {
     connection = await oracledb.getConnection({
       user: process.env.dbusername,
@@ -18,5 +26,5 @@ const dbcon = async (query) => {
     console.error(err.message);
   }
 };
-
-module.exports = dbcon;
+*/
+module.exports = connection;
