@@ -5,6 +5,10 @@ const colors = require("colors");
 const dbcon = require("./config/db");
 const cookieParser = require('cookie-parser');
 const errorHandler = require("./middlewear/error");
+var cors = require('cors')
+
+
+
 
 // Importing Routes
 const auth = require('./routes/auth');
@@ -12,7 +16,7 @@ const auth = require('./routes/auth');
 dotenv.config({ path: "./config/config.env" });
 
 const app = express();
-
+app.use(cors())
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV === "development") {
