@@ -9,6 +9,7 @@ export default (state,action) =>{
                 user: action.payload,
                 authenticated: true,
                 logerror: false
+         
 
              }
         case EMPLOG_Fail:

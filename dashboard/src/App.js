@@ -13,17 +13,8 @@ function App() {
     <AuthState>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <Dashboard>                
-                <Topbar />
-              </Dashboard>
-            }
-          >
-            <Route path="abc" element={<Topbar />} />
-          </Route>
+          <Route path="/login" index element={<Login />} />
+          <Route path="dashboard/*" element={<Dashboard/>} />
         </Routes>
       </BrowserRouter>
     </AuthState>

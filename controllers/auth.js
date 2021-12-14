@@ -98,11 +98,11 @@ exports.login = asyncHandler(async (req, res, next) => {
       );
       const opt = {
         expires: new Date(
-          Date.now() + process.env.JWT_EXPIRE * 24 * 60 * 60 * 100
+          Date.now() + parseInt(process.env.JWT_EXPIRE) * 24 * 60 * 60 * 100
         ),
         httpOnly: true,
       };
-      console.log(jwttoken)
+      console.log(opt)
       res.status(200).cookie("token", jwttoken, opt).json({
         status: "success",
         token: jwttoken,
@@ -124,9 +124,10 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 exports.navbar = asyncHandler(async (req, res, next) => {
   try {
+    
     let con = await oracledb.getConnection(connection());
 
-    const tok = jwt.verify(req.header("x-emp-ath"), process.env.JWT_SECRET);
+    const tok = jwt.verify(req.cookies['token'], process.env.JWT_SECRET);
     const rol = parseInt(tok.role);
 
     const result = await con.execute(

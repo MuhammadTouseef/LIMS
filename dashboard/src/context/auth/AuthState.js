@@ -19,7 +19,7 @@ const AuthState = (props)=>{
       
         const res = await axios.post('/api/v1/auth/emplogin' , data)
     
-        console.log(res.data.token)
+        localStorage.setItem('x-auth',res.data.token)
         dispatch({
             type: EMPLOG_SUCCESS,
            payload: res.data.token
