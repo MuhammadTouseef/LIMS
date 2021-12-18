@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
 .nav-link{
     font-family: 'Roboto', sans-serif !important;
     font-size: 16px !important;
@@ -10,4 +11,12 @@ body{
 h1{
     color: #37814F;
   text-transform: capitalize;
+}
+.pg-title{
+    font-family: 'Staatliches', cursive;
+    font-size: 4.0em !important;
+}
+.sd-item{
+    text-decoration: none;
+    
 }

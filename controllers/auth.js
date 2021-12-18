@@ -35,10 +35,10 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     const result = await con.execute(
       `INSERT INTO EMPLOYEE ( FIRST_NAME, LAST_NAME, DOB, MOBILENUMBER,
-         TELEPHONE, ADDRESS, CNIC, STATUS,  USERNAME, PASSWORD, ROLES_ROLEID)
+         TELEPHONE, ADDRESS, CNIC, STATUS,  USERNAME, PASSWORD, ROLES_ROLEID, EMAIL)
          VALUES
         (:fn , :ln , TO_DATE(:dob, 'YYYY-MM-DD HH24:MI:SS') ,
-        :mob , :tel, :addr , :cnic , :sta ,  :username , :pass , :rl
+        :mob , :tel, :addr , :cnic , :sta ,  :username , :pass , :rl , :em
         )
 
          `,
@@ -54,6 +54,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         username,
         pw,
         rqid,
+        email
       ],
       { autoCommit: true }
     );
@@ -129,9 +130,14 @@ exports.navbar = asyncHandler(async (req, res, next) => {
 
     const tok = jwt.verify(req.cookies['token'], process.env.JWT_SECRET);
     const rol = parseInt(tok.role);
-
+console.log(rol)
     const result = await con.execute(
-      `SELECT * FROM ROLEPERMISSIONS WHERE ROLES_ROLEID = :id `,
+      `SELECT ROLEID, ROLEPERMISSIONS_ID, TITLE FROM  ROLES JOIN
+      ROLES_ROLEPERMISSIONS RR on ROLES.ROLEID = RR.ROLES_ROLEID JOIN
+      ROLEPERMISSIONS R on R.ID = RR.ROLEPERMISSIONS_ID
+  WHERE ROLEID = 
+  
+   :id `,
       [rol]
     );
     var fr = [];
@@ -139,7 +145,7 @@ exports.navbar = asyncHandler(async (req, res, next) => {
     await Promise.all(
       result.rows.map(async (ar) => {
         let sub = await con.execute(
-          `SELECT TITLE,LINK FROM ROLESUBITEM WHERE ROLEPERMISSIONS_PERMISSIONID = :id `,
+          `SELECT TITLE,LINK FROM ROLESUBITEM WHERE ROLEPERMISSIONS_ID = :id `,
           [ar[1]]
         );
         ar.push(sub.rows);

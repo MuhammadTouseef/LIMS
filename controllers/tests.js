@@ -198,9 +198,9 @@ const options = {
     ]
   };
 let resu = await con.execute(`insert into BILL ( COST, TAXES, TOTAL, EMPLOYEE_EMPLOYEE_ID, PATIENT_PATIENTID, PASSWORD)
-values (:a,:b,:c,:d,:e,:f) RETURNING BILLID into :employee_id` , [totalcost, tax, grandtotal, eid, patid, password],
+values (:a,:b,:c,:d,:e,:f) ` , [totalcost, tax, grandtotal, eid, patid, password],
 { autoCommit: true })
-console.log(resu)
+console.log(resu.rowsAffected)
 
       await con.close();
       res.status(200).json({

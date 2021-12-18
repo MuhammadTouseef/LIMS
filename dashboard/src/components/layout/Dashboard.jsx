@@ -5,6 +5,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Topbar from "./Topbar";
 import { OrderTest } from "../pages/OrderTest";
 import { AddPatient } from "../pages/AddPatient";
+import { AddTest } from "../pages/AddTest";
+import { AddTestData } from "../pages/AddTestData";
+import { AddRole } from "../pages/AddRole";
+import { AddRolePermission } from "../pages/AddRolePermission";
+import { OrderTst } from "../pages/OrderTst";
 
 export const Dashboard = (props) => {
   function RequireAuth({ children, redirectTo }) {
@@ -52,6 +57,51 @@ export const Dashboard = (props) => {
               element={
                 <RequireAuth redirectTo="/login">
                  <AddPatient/>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/addtest"
+              element={
+                <RequireAuth redirectTo="/login">
+                 <AddTest/>
+                </RequireAuth>
+              }
+            />
+                       <Route
+              path="/addtestdata"
+              element={
+                <RequireAuth redirectTo="/login">
+
+                 <AddTestData/>
+                </RequireAuth>
+              }
+            />
+                              <Route
+              path="/addrole"
+              element={
+                <RequireAuth redirectTo="/login">
+                  
+                <AddRole/>
+                </RequireAuth>
+              }
+            />
+                                     <Route
+              path="/addrolepermission"
+              element={
+                <RequireAuth redirectTo="/login">
+                  
+                <AddRolePermission/>
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/odt/:id"
+              element={
+                <RequireAuth redirectTo="/login">
+                  
+                <OrderTst/>
                 </RequireAuth>
               }
             />

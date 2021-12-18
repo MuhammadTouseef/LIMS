@@ -13,6 +13,7 @@ var cors = require('cors')
 // Importing Routes
 const auth = require('./routes/auth');
 const patient = require('./routes/patient');
+const tests = require('./routes/tests');
 dotenv.config({ path: "./config/config.env" });
 
 const app = express();
@@ -34,6 +35,7 @@ app.use(cookieParser())
 
 app.use('/api/v1/auth', auth)
 app.use('/api/v1/patient', patient)
+app.use('/api/v1/tests', tests)
 
 //app.use('api/v1/auth', a)
 app.use(errorHandler);

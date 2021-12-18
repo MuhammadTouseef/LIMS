@@ -7,6 +7,7 @@ import {
   DrawerNavigation,
 } from "react-bootstrap-drawer";
 import Cookies from "universal-cookie";
+import { Link } from "react-router-dom";
 
 export const Dashnav = (props) => {
   // 	const [cookies, setCookie, removeCookie] = useCookies(['token']);
@@ -46,13 +47,17 @@ export const Dashnav = (props) => {
         ) : (
           nav.map((a) => {
             return [
-              <h5>{a[2]}</h5>,
+              <h6>{a[2]}</h6>,
 
               a[3].map((b) => {
                 return [
-                  <a className="text-white" href={b[1]}>
-                    {b[0]}
-                  </a>,
+                  <Link className="text-white sd-item" to={`/dashboard${b[1]}`}>{b[0]}</Link>
+                  // <a className="text-white" href={`/dashboard${b[1]}`}>
+               
+                    
+                  //   {b[0]}
+                  // </a>
+                  ,
                   <br />,
                 ];
               }),

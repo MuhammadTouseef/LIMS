@@ -16,13 +16,14 @@ export const OrderTest = () => {
           },
         }
       );
-
-      console.log(res.data[0]);
-      if (parseInt(res.data[0]) === 0) {
-        alert("Not Exist");
-      } else {
-        alert("Exist");
-      }
+   
+if(res.data.length === 0){
+  alert("Not Exist");
+}else{
+  alert("Exist");
+}
+     
+     
     } catch (error) {
       alert(error);
     }
