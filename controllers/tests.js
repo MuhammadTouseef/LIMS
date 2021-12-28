@@ -4,6 +4,7 @@ const connection = require("../config/db");
 var jwt = require("jsonwebtoken");
 const { SODA_COLL_MAP_MODE } = require("oracledb");
 var generator = require('generate-password');
+const moment = require("moment");
 
 exports.addtest = asyncHandler(async (req, res, next) => {
   try {
@@ -182,6 +183,7 @@ var totalcost = 0;
  );
  const tax = parseInt(totalcost*0.17) 
  const grandtotal = totalcost+tax
+ console.log(grandtotal)
  var password = generator.generate({
 	length: 12,
 	numbers: true,
@@ -190,18 +192,88 @@ var totalcost = 0;
 
 const tok = jwt.verify(req.headers['x-emp-ath'], process.env.JWT_SECRET);
 const eid = parseInt(tok.id);
-const options = {
-    bindDefs: [
-      { type: oracledb.NUMBER },
-      { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
-      { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 20 }
-    ]
-  };
+
 let resu = await con.execute(`insert into BILL ( COST, TAXES, TOTAL, EMPLOYEE_EMPLOYEE_ID, PATIENT_PATIENTID, PASSWORD)
 values (:a,:b,:c,:d,:e,:f) ` , [totalcost, tax, grandtotal, eid, patid, password],
 { autoCommit: true })
-console.log(resu.rowsAffected)
 
+let billid = await con.execute(`SELECT max(BILLID) FROM BILL ` )
+billid = parseInt(billid.rows[0][0]) 
+await Promise.all(
+    values.map(async (one) => {
+      let resu = await con.execute(
+          `insert into BILL_TEST (BILL_BILLID, TEST_TESTID)
+          values (:a,:b)
+          `,[billid, one],{ autoCommit: true }
+  
+        );   
+       
+       
+        
+    })
+   );
+
+
+      await con.close();
+      res.status(200).json({
+        status: "Success",
+        message: "Added Successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+
+
+
+
+      
+   
+  exports.addsample = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+     const { status, patientid, empid, billid, testid} = req.body;
+     var currentDate = new Date();
+  const takenat = moment(currentDate).format('YYYY-MM-DD HH:mm:ss')
+
+      const resu = await con.execute(
+        `insert into NEWLIMS.SAMPLE ( TAKENAT, STATUS, PATIENT_PATIENTID, EMPLOYEE_EMPLOYEE_ID, BILL_BILLID,
+          TEST_TESTID)
+values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:c,:d,:e,:f)`,[takenat,status,patientid,empid,billid,testid],
+        { autoCommit: true }
+      );
+      await con.close();
+      res.status(200).json({
+        status: "Success",
+        message: "Added Successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+
+
+
+  
+  exports.sampleresult = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+     const { result, comment, sampleid} = req.body;
+    
+
+      const resu = await con.execute(
+        `insert into SAMLERESLTS (RESULT, COMNT,  SAMPLE_SAMPLEID)
+        values (:a,:b,:c)`,[result,comment,sampleid],
+        { autoCommit: true }
+      );
       await con.close();
       res.status(200).json({
         status: "Success",

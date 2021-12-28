@@ -40,8 +40,8 @@ export const OrderTst = () => {
       setdob(res.data[0][3]);
       setcnic(res.data[0][4]);
       setcontact(res.data[0][5]);
-      setEmail(res.data[0][6]);
-      setGender(res.data[0][7]);
+      setEmail(res.data[0][7]);
+      setGender(res.data[0][8]);
     } catch (error) {
       alert(error);
     }
