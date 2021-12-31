@@ -33,6 +33,42 @@ values (:a,:b,:c,:d)`,
 });
 
 
+
+exports.updatetest = asyncHandler(async (req, res, next) => {
+  try {
+ 
+    let con = await oracledb.getConnection(connection());
+    const { testname, sample, time, cost, testid } = req.body;
+    const tm = parseInt(time);
+    const cs = parseInt(cost);
+    console.log(testid)
+    const resu = await con.execute(
+      `
+UPDATE TEST SET TESTNAME = :a,
+SAMPLEREQUIRE = :b,
+REPORTINGDAYS = :c,
+COST = :d
+WHERE TESTID = :d
+`,
+      [testname, sample, tm, cs, testid],
+      { autoCommit: true }
+    );
+    await con.close();
+    res.status(200).json({
+      status: "Success",
+      message: "Updated Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
+
 exports.getall = asyncHandler(async (req, res, next) => {
     try {
       let con = await oracledb.getConnection(connection());
@@ -52,6 +88,49 @@ exports.getall = asyncHandler(async (req, res, next) => {
   });
   
   
+
+  
+exports.comp = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   
+    const resu = await con.execute(
+      `SELECT * FROM TEST`
+    );
+    await con.close();
+    res.status(200).json(resu.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
+
+  
+exports.search = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   const {value} = req.body;
+   const val = `%${value}%`
+    const resu = await con.execute(
+      `SELECT * FROM TEST WHERE TESTNAME LIKE :a `
+    ,[val]);
+    await con.close();
+    res.status(200).json(resu.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
   exports.addtestdata = asyncHandler(async (req, res, next) => {
     try {
       let con = await oracledb.getConnection(connection());
