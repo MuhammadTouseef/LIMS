@@ -21,7 +21,7 @@ export const Loginform = () => {
         }
     }
 
-    if (authenticated) return <Navigate to='/' />;
+    if (authenticated) return <Navigate to='/dashboard' />;
     return (
      
       <div className="col-md-6 col-lg-7 d-flex align-items-center">

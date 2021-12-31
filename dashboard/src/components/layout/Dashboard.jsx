@@ -10,6 +10,12 @@ import { AddTestData } from "../pages/AddTestData";
 import { AddRole } from "../pages/AddRole";
 import { AddRolePermission } from "../pages/AddRolePermission";
 import { OrderTst } from "../pages/OrderTst";
+import { Sample } from "../pages/Sample";
+import { Sampledata } from "../pages/Sampledata";
+import { ManageSample } from "../pages/ManageSamples";
+import { ManagePatients } from "../pages/ManagePatients";
+import { ManageTests } from "../pages/ManageTests";
+
 
 export const Dashboard = (props) => {
   function RequireAuth({ children, redirectTo }) {
@@ -60,6 +66,15 @@ export const Dashboard = (props) => {
                 </RequireAuth>
               }
             />
+
+<Route
+              path="/addpatient/:id"
+              element={
+                <RequireAuth redirectTo="/login">
+                 <AddPatient/>
+                </RequireAuth>
+              }
+            />
             <Route
               path="/addtest"
               element={
@@ -102,6 +117,56 @@ export const Dashboard = (props) => {
                 <RequireAuth redirectTo="/login">
                   
                 <OrderTst/>
+                </RequireAuth>
+              }
+            />
+            
+<Route
+              path="/sample"
+              element={
+                <RequireAuth redirectTo="/login">
+                  
+                <Sample/>
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/sampleresult"
+              element={
+                <RequireAuth redirectTo="/login">
+          <Sampledata/>
+
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/managesamples"
+              element={
+                <RequireAuth redirectTo="/login">
+        <ManageSample/>
+
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/managepatients"
+              element={
+                <RequireAuth redirectTo="/login">
+<ManagePatients/>
+
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/managetests"
+              element={
+                <RequireAuth redirectTo="/login">
+<ManageTests/>
+
                 </RequireAuth>
               }
             />

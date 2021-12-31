@@ -1,8 +1,9 @@
 import { React, useState } from "react";
 import { Form, Row, Col, Container, Button } from "react-bootstrap";
 import axios from "axios";
-
+import { useNavigate } from 'react-router-dom';
 export const OrderTest = () => {
+  let navigate = useNavigate();
   const [cnic, setcnic] = useState("");
 
   const chk = async () => {
@@ -20,7 +21,7 @@ export const OrderTest = () => {
 if(res.data.length === 0){
   alert("Not Exist");
 }else{
-  alert("Exist");
+  navigate(`/dashboard/odt/${cnic}`)
 }
      
      

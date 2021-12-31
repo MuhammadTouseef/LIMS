@@ -1,5 +1,5 @@
 const express = require('express');
-const { addtest, getall, addtestdata, addrole, addrolepermission, testlistop, addbill, addsample, sampleresult } = require('../controllers/tests');
+const { addtest, getall, addtestdata, addrole, addrolepermission, testlistop, addbill, addsample, sampleresult, getallsamples } = require('../controllers/tests');
 
 
 
@@ -14,5 +14,6 @@ router.get('/listop',testlistop)
 router.post('/addbill', addbill)
 router.post('/addsample', addsample)
 router.post('/addsampleresult', sampleresult)
+router.get('/getallsamples', getallsamples)
 
 module.exports = router;

@@ -1,7 +1,11 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Form, Row, Col, Container, Button } from "react-bootstrap";
+import { Navigate } from 'react-router-dom';
 import axios from "axios";
+import moment from "moment";
 export const AddPatient = () => {
+  let param = useParams();
   const [firstName, setfirstName] = useState("");
   const [lastName, setlastName] = useState("");
   const [dob, setdob] = useState("");
@@ -9,6 +13,46 @@ export const AddPatient = () => {
   const [cnic, setcnic] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
+  const [patid, setpatid] = useState("");
+  const [edited, setedited] = useState(false);
+  const pid = param.id;
+  let title = "Add Patient";
+if(pid){
+  title = "Edit Patient";
+  
+}
+try {
+  useEffect(() => {
+    getdt();
+  
+    //eslint-disable-next-line
+  }, []);
+} catch (error) {
+  
+}
+const getdt = async () => {
+  try {
+    const res = await axios.post(
+      "/api/v1/patient/details",
+      { cnic: param.id },
+      {
+        headers: {
+          "x-emp-ath": localStorage.getItem("x-auth"),
+        },
+      }
+    );
+   setpatid(res.data[0][0])
+    setfirstName(res.data[0][1]);
+    setlastName(res.data[0][2]);
+    setdob(moment(res.data[0][3]).format('YYYY-MM-DD'));
+    setcnic(res.data[0][4]);
+    setcontact(res.data[0][5]);
+    setEmail(res.data[0][7]);
+    setGender(res.data[0][8]);
+  } catch (error) {
+
+  }
+};
 
   const sub = async () => {
     if (
@@ -24,7 +68,7 @@ export const AddPatient = () => {
     } else {
       try {
         const res = await axios.post(
-          "/api/v1/patient/addpatient",
+          pid? "/api/v1/patient/editpatient": "/api/v1/patient/addpatient",
           {
             firstName: firstName,
             lastName: lastName,
@@ -33,6 +77,8 @@ export const AddPatient = () => {
             cnic: cnic,
             gender: gender,
             email: email,
+            pid: patid
+
           },
           {
             headers: {
@@ -48,17 +94,23 @@ export const AddPatient = () => {
         setGender("");
         setdob("");
         setcnic("");
-        alert("Patient added Successfully")
+        pid ? setedited(true)  : alert("Patient added Successfully")
+        
       } catch (error) {
         alert(error);
       }
     }
   };
+  if(edited){
+    return <Navigate to='/dashboard/managepatients' />
+  }
 
   return (
     <div>
+     
       <h1 style={{ textAlign: "center" }} className="my-2 pg-title">
-        Add Patient
+      
+     {title}
       </h1>
       <br />
       <Container className="my-3">
@@ -133,7 +185,7 @@ export const AddPatient = () => {
             </Form.Group>
             <div className="d-grid gap-2">
               <Button variant="success" size="lg" onClick={sub}>
-                Add Patient
+             {title}
               </Button>
             </div>
           </Col>

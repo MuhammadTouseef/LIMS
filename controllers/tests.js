@@ -236,14 +236,16 @@ await Promise.all(
   exports.addsample = asyncHandler(async (req, res, next) => {
     try {
       let con = await oracledb.getConnection(connection());
-     const { status, patientid, empid, billid, testid} = req.body;
+     const { status, patientid, billid, testid} = req.body;
+     const tok = jwt.verify(req.headers['x-emp-ath'], process.env.JWT_SECRET);
+const  empid = parseInt(tok.id);
      var currentDate = new Date();
   const takenat = moment(currentDate).format('YYYY-MM-DD HH:mm:ss')
 
       const resu = await con.execute(
-        `insert into NEWLIMS.SAMPLE ( TAKENAT, STATUS, PATIENT_PATIENTID, EMPLOYEE_EMPLOYEE_ID, BILL_BILLID,
+        `insert into NEWLIMS.SAMPLE ( TAKENAT, STATUS, EMPLOYEE_EMPLOYEE_ID, BILL_BILLID,
           TEST_TESTID)
-values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:c,:d,:e,:f)`,[takenat,status,patientid,empid,billid,testid],
+values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:d,:e,:f)`,[takenat,status,empid,billid,testid],
         { autoCommit: true }
       );
       await con.close();
@@ -287,3 +289,28 @@ values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:c,:d,:e,:f)`,[takenat,status,pa
       });
     }
   });
+
+
+
+
+  exports.getallsamples = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+     
+  
+      const resu = await con.execute(
+        `SELECT SAMPLEID, TAKENAT, STATUS, BILLID, FIRST_NAME, LAST_NAME , PATIENT_PATIENTID
+        FROM SAMPLE JOIN BILL B on B.BILLID = SAMPLE.BILL_BILLID JOIN PATIENT P on P.PATIENTID = B.PATIENT_PATIENTID
+        ORDER BY SAMPLEID DESC`
+      );
+            await con.close();
+      res.status(200).json(resu.rows);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+  
