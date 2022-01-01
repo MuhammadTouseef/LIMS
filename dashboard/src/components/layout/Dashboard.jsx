@@ -40,7 +40,7 @@ export const Dashboard = (props) => {
               path="/"
               element={
                 <RequireAuth redirectTo="/login">
-                  <h1>Hello</h1>
+                  <h1>Laboratory Information Management System</h1>
                 </RequireAuth>
               }
             />
@@ -194,30 +194,29 @@ export const Dashboard = (props) => {
               }
             />
 
-            
-<Route
+            <Route
               path="/asper/:id"
               element={
                 <RequireAuth redirectTo="/login">
-                 <AssignPer/>
+                  <AssignPer />
                 </RequireAuth>
               }
             />
 
-<Route
+            <Route
               path="/qa"
               element={
                 <RequireAuth redirectTo="/login">
-               <QAReport/>
+                  <QAReport />
                 </RequireAuth>
               }
             />
 
-<Route
+            <Route
               path="/ademp"
               element={
                 <RequireAuth redirectTo="/login">
-             <AddEmp/>
+                  <AddEmp />
                 </RequireAuth>
               }
             />

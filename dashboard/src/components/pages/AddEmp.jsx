@@ -74,15 +74,18 @@ const getdt = async () => {
         const res = await axios.post(
           pid? "/api/v1/patient/editpatient": "/api/v1/auth/empreg",
           {
-            firstName: firstName,
-            lastName: lastName,
+            firstname: firstName,
+            lastname: lastName,
             dob: dob,
-            contact: contact,
+            mobile: contact,
             telephone: telephone,
+            address: address,
             cnic: cnic,
-           
+           username: username,
+           password: password,
+           role: roleid,
             email: email,
-            pid: patid
+            
 
           },
           {
@@ -99,7 +102,7 @@ const getdt = async () => {
        
         setdob("");
         setcnic("");
-        pid ? setedited(true)  : alert("Patient added Successfully")
+        pid ? setedited(true)  : alert("Employee added Successfully")
         
       } catch (error) {
         alert(error);
@@ -215,19 +218,7 @@ const getdt = async () => {
                 onChange={(e) => setcnic(e.target.value)}
               />
             </Form.Group>
-            <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label>Gender</Form.Label>
-              <Form.Select
-             
-                aria-label="Select Gender"
-                onChange={(e) => ''}
-              >
-                <option>Select Gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </Form.Select>
-            </Form.Group>
+           
             <Form.Group controlId="formFile" className="mb-3">
               <Form.Label>Email</Form.Label>
               <Form.Control

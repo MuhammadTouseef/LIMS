@@ -4,6 +4,7 @@ const asyncHandler = require("../middlewear/async");
 const oracledb = require("oracledb");
 const bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
+const moment = require("moment");
 const { hashpas } = require("../util/password");
 
 // @desc  Register Employee
@@ -28,10 +29,12 @@ exports.register = asyncHandler(async (req, res, next) => {
       email,
     } = req.body;
     const rqid = parseInt(role);
-    console.log(rqid);
+    console.log(firstname);
     console.log(req.body);
     const salt = await bcrypt.genSalt(10);
     const pw = await bcrypt.hash(password, salt);
+    var currentDate = new Date();
+    const dat = moment(dob).format('YYYY-MM-DD HH:mm:ss')
 
     const result = await con.execute(
       `INSERT INTO EMPLOYEE ( FIRST_NAME, LAST_NAME, DOB, MOBILENUMBER,
@@ -45,7 +48,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       [
         firstname,
         lastname,
-        dob,
+        dat,
         mobile,
         telephone,
         address,

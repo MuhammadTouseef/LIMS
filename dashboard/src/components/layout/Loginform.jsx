@@ -51,11 +51,7 @@ export const Loginform = () => {
           <div className="pt-1 mb-4">
             <button className="btn btn-dark btn-lg btn-block" type="button" onClick={onsub}>Login</button>
           </div>
-          <a className="small text-muted" href="#!">Forgot password?</a>
-          <br />
-          <a href="#!" className="small text-muted">Terms of use.</a>
-          <br />
-          <a href="#!" className="small text-muted">Privacy policy</a>
+         
         </form>
       </div>
     </div>
