@@ -50,7 +50,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         telephone,
         address,
         cnic,
-        status,
+       1,
         username,
         pw,
         rqid,
@@ -128,7 +128,7 @@ exports.navbar = asyncHandler(async (req, res, next) => {
     
     let con = await oracledb.getConnection(connection());
 
-    const tok = jwt.verify(req.cookies['token'], process.env.JWT_SECRET);
+    const tok = jwt.verify(req.headers['x-emp-ath'], process.env.JWT_SECRET);
     const rol = parseInt(tok.role);
 console.log(rol)
     const result = await con.execute(
@@ -162,3 +162,220 @@ console.log(rol)
     });
   }
 });
+
+
+
+  
+   
+exports.getroles = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   
+    const resu = await con.execute(
+      `SELECT * FROM ROLES`
+    );
+    await con.close();
+    res.status(200).json(resu.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
+exports.searchroles = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   const {value} = req.body;
+    const resu = await con.execute(
+      `SELECT * FROM ROLEPERMISSIONS JOIN ROLES_ROLEPERMISSIONS RR on ROLEPERMISSIONS.ID = RR.ROLEPERMISSIONS_ID
+      WHERE ROLES_ROLEID = :a`,[value]
+    );
+
+    await con.close();
+    res.status(200).json(resu.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
+
+
+
+  
+   
+exports.deleteroles = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   const {value} = req.body;
+   
+   const roleid = parseInt(value)
+   console.log(roleid)
+
+    let resu = await con.execute(
+      `delete 
+      from ROLES_ROLEPERMISSIONS
+      where ROLES_ROLEID = :a `,[roleid],{autoCommit: true}
+    );
+    console.log(resu)
+     resu = await con.execute(
+      `delete 
+      from ROLES
+      where ROLEID = :a `,[roleid],{autoCommit: true}
+    );
+    await con.close();
+    res.status(200).json({
+      success : true
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
+
+
+
+
+
+  
+   
+exports.getroleper = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   
+    const resu = await con.execute(
+      `select *
+      from ROLEPERMISSIONS;`
+    );
+    await con.close();
+    res.status(200).json(resu.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+  
+   
+exports.getassignper = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   const {value} = req.body
+   
+    const resu = await con.execute(
+      `SELECT * FROM  ROLEPERMISSIONS
+      MINUS
+      SELECT ID, TITLE FROM ROLEPERMISSIONS JOIN ROLES_ROLEPERMISSIONS RR on ROLEPERMISSIONS.ID = RR.ROLEPERMISSIONS_ID
+      WHERE ROLES_ROLEID = :a
+      `,[value]
+    );
+    
+    const data = resu.rows;
+    
+    let rf = []
+    data.map(a => {
+        let x = {
+           value: a[0],
+           label: a[1] 
+        }
+        rf.push(x)
+    })
+
+    await con.close();
+    res.status(200).json(rf);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
+
+
+
+  
+   
+exports.addassignper = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   const {roles,per} = req.body
+   const rid = parseInt(roles)
+ 
+   const values = per.map(a => a['value'])
+  
+   await Promise.all(
+ values.map(async (a)=>{
+
+  let resu = await con.execute(
+    `insert into ROLES_ROLEPERMISSIONS (ROLES_ROLEID, ROLEPERMISSIONS_ID)
+    values (:a,:b)`,[rid,a],{autoCommit: true}
+  );
+ })
+   )
+    
+    await con.close();
+    res.status(200).json({
+      success: true
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+  
+
+
+
+  
+   
+exports.deleteasp = asyncHandler(async (req, res, next) => {
+  try {
+    let con = await oracledb.getConnection(connection());
+   const {value , pid} = req.body;
+   
+   const roleid = parseInt(value)
+   const perid = parseInt(pid)
+
+    let resu = await con.execute(
+      `delete 
+      from ROLES_ROLEPERMISSIONS
+      where ROLES_ROLEID = :a AND ROLEPERMISSIONS_ID = :b`,[roleid, perid],{autoCommit: true}
+    );
+
+   
+    await con.close();
+    res.status(200).json({
+      success : true
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+

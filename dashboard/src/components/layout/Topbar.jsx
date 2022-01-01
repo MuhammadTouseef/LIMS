@@ -11,7 +11,7 @@ const topbar = () => {
     <div className="col-8">
     <Form.Control  type="text" placeholder="Search" />
     </div>
-    <div className="col-4">col-4</div>
+    <div className="col-4 ">Logout</div>
   </div>
 </div>
         </>

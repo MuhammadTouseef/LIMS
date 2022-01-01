@@ -27,8 +27,7 @@ export const Dashnav = (props) => {
   const getnav = async () => {
     const res = await axios.get("/api/v1/auth/nav", {
       headers: {
-        "x-emp-ath":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjIsInJvbGUiOjczMiwiaWF0IjoxNjM4Nzg4NDkyLCJleHAiOjE2Mzg4NzQ4OTJ9.oGZzw3Lcko3mJUlq3tKD0-MQCRR65ovnKZOagDG0JeY",
+        "x-emp-ath": localStorage.getItem("x-auth"),
       },
     });
     console.log(res.data);

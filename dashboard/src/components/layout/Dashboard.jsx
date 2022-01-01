@@ -16,6 +16,11 @@ import { ManageSample } from "../pages/ManageSamples";
 import { ManagePatients } from "../pages/ManagePatients";
 
 import { ManageTst } from "../pages/ManageTst";
+import { ManageBill } from "../pages/ManageBill";
+import { ManageRolePer } from "../pages/ManageRolePer";
+import { AssignPer } from "../pages/AssignPer";
+import { QAReport } from "../pages/QAReport";
+import { AddEmp } from "../pages/AddEmp";
 
 export const Dashboard = (props) => {
   function RequireAuth({ children, redirectTo }) {
@@ -84,7 +89,7 @@ export const Dashboard = (props) => {
               }
             />
 
-<Route
+            <Route
               path="/addtest/:id"
               element={
                 <RequireAuth redirectTo="/login">
@@ -167,6 +172,52 @@ export const Dashboard = (props) => {
               element={
                 <RequireAuth redirectTo="/login">
                   <ManageTst />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/managebill"
+              element={
+                <RequireAuth redirectTo="/login">
+                  <ManageBill />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/mrp"
+              element={
+                <RequireAuth redirectTo="/login">
+                  <ManageRolePer />
+                </RequireAuth>
+              }
+            />
+
+            
+<Route
+              path="/asper/:id"
+              element={
+                <RequireAuth redirectTo="/login">
+                 <AssignPer/>
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/qa"
+              element={
+                <RequireAuth redirectTo="/login">
+               <QAReport/>
+                </RequireAuth>
+              }
+            />
+
+<Route
+              path="/ademp"
+              element={
+                <RequireAuth redirectTo="/login">
+             <AddEmp/>
                 </RequireAuth>
               }
             />

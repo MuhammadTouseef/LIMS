@@ -3,9 +3,11 @@ const oracledb = require("oracledb");
 const connection = require("../config/db");
 var jwt = require("jsonwebtoken");
 const { SODA_COLL_MAP_MODE } = require("oracledb");
+var uniqid = require('uniqid'); 
 var generator = require('generate-password');
 const moment = require("moment");
-
+var easyinvoice = require('easyinvoice');
+const base64 = require('base64topdf');
 exports.addtest = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
@@ -348,13 +350,43 @@ values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:d,:e,:f)`,[takenat,status,empid
     try {
       let con = await oracledb.getConnection(connection());
      const { result, comment, sampleid} = req.body;
-    
-
-      const resu = await con.execute(
+     const tok = jwt.verify(req.headers['x-emp-ath'], process.env.JWT_SECRET);
+     const  empid = parseInt(tok.id);
+     var currentDate = new Date();
+  const takenat = moment(currentDate).format('YYYY-MM-DD HH:mm:ss')
+      let resu = await con.execute(
         `insert into SAMLERESLTS (RESULT, COMNT,  SAMPLE_SAMPLEID)
         values (:a,:b,:c)`,[result,comment,sampleid],
         { autoCommit: true }
       );
+
+      resu = await con.execute(
+        `SELECT MAX(ID) FROM SAMLERESLTS`
+      );
+      const sampleresid = resu.rows[0][0]
+      resu = await con.execute(
+        `SELECT BILL_BILLID, TEST_TESTID FROM SAMPLE
+        WHERE  SAMPLEID = :a`,[sampleid]
+      );
+
+      const billid = resu.rows[0][0]
+      const testid = resu.rows[0][1]
+      resu = await con.execute(
+        `SELECT PATIENTID FROM BILL JOIN PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
+        WHERE BILLID = :a`,[billid]
+      );
+      const pid = resu.rows[0][0]
+      const rid = uniqid('LIMS-')
+      resu = await con.execute(
+        `insert into NEWLIMS.REPORT ( REPORTID, PATIENT_PATIENTID, EMPLOYEE_EMPLOYEE_ID, GENERATEDAT, SAMPLE_SAMPLEID,
+          BILL_BILLID, TEST_TESTID)
+values (:z,:a,:b,TO_DATE(:c, 'YYYY-MM-DD HH24:MI:SS'),:d,:e,:f)`,[rid,pid,empid,takenat,sampleid,billid,testid],{
+  autoCommit: true
+}
+      );
+
+      
+
       await con.close();
       res.status(200).json({
         status: "Success",
@@ -392,4 +424,268 @@ values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:d,:e,:f)`,[takenat,status,empid
       });
     }
   });
+
+
+
   
+
+
+  exports.getallbills = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+     
+  
+      const resu = await con.execute(
+        `SELECT BILLID, PATIENTID, FIRST_NAME,  LAST_NAME , PASSWORD, COST, TAXES, TOTAL FROM BILL JOIN
+        PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
+    ORDER BY BILLID DESC `
+      );
+            await con.close();
+      res.status(200).json(resu.rows);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+  
+
+
+  
+
+  exports.billsearch = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+     let {value} = req.body
+  
+      const resu = await con.execute(
+        `SELECT BILLID, PATIENTID, FIRST_NAME,  LAST_NAME , PASSWORD, COST, TAXES, TOTAL FROM BILL JOIN
+        PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
+        WHERE BILLID = :a
+    ORDER BY BILLID DESC `,[value]
+      );
+            await con.close();
+      res.status(200).json(resu.rows);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+  
+  
+
+  
+
+  exports.getinvoice = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+     
+  // const {billid} = req.body;
+  const billid = req.params.id;
+      const resu = await con.execute(
+        `SELECT  PATIENTID, FIRST_NAME,  LAST_NAME , PASSWORD, COST, TAXES, TOTAL FROM BILL JOIN
+        PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
+WHERE BILLID = :a
+    ORDER BY BILLID DESC
+`,[billid]
+      );
+
+      const billdetails = await con.execute(
+        `
+        SELECT TESTID, TESTNAME, TEST.COST FROM TEST JOIN BILL_TEST BT on TEST.TESTID = BT.TEST_TESTID JOIN BILL B on BT.BILL_BILLID = B.BILLID
+WHERE BILLID = :a
+        `,[billid]
+      );
+      await con.close();
+     let tabl = ''
+
+     billdetails.rows.map((e)=>{
+       let x = ` 
+
+       <tr>
+       <td>${e[0]}</td>
+       <td>${e[1]}</td>
+       <td>Rs ${e[2]}</td>
+       </tr>
+       `
+       tabl += x
+   
+     })
+     let tablep = `
+ 
+     <table>
+  <tr>
+    <th>Test ID</th>
+    <th>Test Name</th>
+    <th>Cost</th>
+  </tr>
+  ${tabl}
+</table>
+     `
+    const htm = `
+    <style>
+    table, th, td {
+      border: 1px solid black;
+
+    }
+    @media print {
+      #printPageButton {
+        display: none;
+      }
+    }
+    </style>
+    <div><button id="printPageButton" onClick="window.print()">Print Bill
+    </button></div>
+    <h1>LIMS</h1>
+   
+    <h2>Bill-ID # ${billid}</h2>
+    <h3>Patient ID: ${resu.rows[0][0]} </h3>
+    <h3>Patient Name: ${resu.rows[0][1]} ${resu.rows[0][2]} </h3>
+    <h3>Bill Password: ${resu.rows[0][3]} </h3>
+    <br>
+ ${tablep}
+ <h3>Total: Rs ${resu.rows[0][4]} </h3>
+ <h3>Taxes: Rs ${resu.rows[0][5]} </h3>
+ <h1>Grand Total: Rs ${resu.rows[0][6]} </h3>
+ <br/>
+ 
+    `
+    
+
+      res.status(200).send(htm)
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+  
+
+
+  
+  
+
+  exports.qa = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+   
+  
+      const resu = await con.execute(
+        `SELECT REPORTID, PATIENT_PATIENTID, BILL_BILLID FROM REPORT
+        ORDER BY BILL_BILLID DESC `
+      );
+
+
+            await con.close();
+      res.status(200).json(resu.rows);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });
+  
+  
+
+
+    
+
+  exports.getreport = asyncHandler(async (req, res, next) => {
+    try {
+      let con = await oracledb.getConnection(connection());
+    //  const reportid = 'LIMS-ppi3e7oskxvta356'
+  // const {billid} = req.body;
+  const reportid = req.params.reportid;
+      const resu = await con.execute(
+        `
+        SELECT REPORTID,
+       PATIENT_PATIENTID,
+       GENERATEDAT,
+       S.BILL_BILLID,
+       RESULT,
+       COMNT,
+       FIRST_NAME,
+       LAST_NAME,
+       CNIC,
+       TESTNAME,
+       SAMPLEVALUE,
+       UNIT
+FROM REPORT
+         JOIN SAMPLE S on REPORT.SAMPLE_SAMPLEID = S.SAMPLEID
+         JOIN SAMLERESLTS S2 on S.SAMPLEID = S2.SAMPLE_SAMPLEID
+         JOIN PATIENT P on P.PATIENTID = REPORT.PATIENT_PATIENTID
+         JOIN TEST T on T.TESTID = S.TEST_TESTID
+         JOIN TESTDATA T2 on T.TESTID = T2.TEST_TESTID
+
+WHERE REPORTID = :a
+`,[reportid]
+      );
+
+    const data = resu.rows[0];
+  
+      await con.close();
+ console.log(data)
+    const htm = `
+    <style>
+    table, th, td {
+      border: 1px solid black;
+
+    }
+    @media print {
+      #printPageButton {
+        display: none;
+      }
+    }
+    </style>
+    <div><button id="printPageButton" onClick="window.print()">Print Report
+    </button></div>
+    <h1>LIMS</h1>
+    <h2>Report-ID # ${data[0]}</h2>
+    <h2>Bill-ID # ${data[3]}</h2>
+    <h3>Patient ID: ${data[1]}</h3>
+    <h3>Patient Name: ${data[6]} ${data[7]} </h3>
+    <h3>CNIC: ${data[8]} </h3>
+    <br>
+ 
+    <table width="100%">
+    <tr>
+      
+      <th >Test Name</th>
+      <th>Reference Value</th>
+      <th>Unit</th>
+      <th>Result</th>
+    
+    </tr>
+    <tr>
+ 
+    <td>${data[9]}</td>
+    <td>${data[10]}</td>
+    <td>${data[11]}</td>
+    <td>${data[4]}</td> 
+  </tr>
+  </table>
+
+ <h3>Generated at: ${data[2]} </h3>
+ <br/>
+ 
+    `
+    
+
+      res.status(200).send(htm)
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: "Failed",
+        message: error,
+      });
+    }
+  });

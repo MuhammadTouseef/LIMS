@@ -6,6 +6,7 @@ export const AddTest = () => {
   const [testname, settestname] = useState("");
   const [sample, setsample] = useState("");
   const [time, settime] = useState("");
+  const [testid, settestid] = useState("");
   const [cost, setcost] = useState("");
   const [edit, setedit] = useState(false);
   let param = useParams();
@@ -36,13 +37,14 @@ const getdt = async () => {
         },
       }
     );
-    console.log("OK")
+
     console.log(res)
     settestname(res.data[0][0]);
     setsample(res.data[0][1]);
     settime(res.data[0][2]);
 
     setcost(res.data[0][3]);
+settestid(res.data[0][4])
 
   } catch (error) {
 
@@ -61,7 +63,7 @@ const getdt = async () => {
             sample: sample,
             time: time,
             cost: cost,
-            testid: pid
+            testid: testid
           },
           {
             headers: {
@@ -138,7 +140,7 @@ setedit(true)
             </Form.Group>
             <div className="d-grid gap-2">
               <Button variant="success" size="lg" onClick={sub}>
-                Add Test
+                {title}
               </Button>
             </div>
           </Col>

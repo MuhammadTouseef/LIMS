@@ -1,0 +1,52 @@
+"filename", "language", "JavaScript", "JSON", "JavaScript React", "CSS", "Markdown", "HTML", "comment", "blank", "total"
+"d:\LIMS\config\db.js", "JavaScript", 9, 0, 0, 0, 0, 0, 20, 2, 31
+"d:\LIMS\controllers\auth.js", "JavaScript", 143, 0, 0, 0, 0, 0, 6, 16, 165
+"d:\LIMS\controllers\patient.js", "JavaScript", 165, 0, 0, 0, 0, 0, 0, 36, 201
+"d:\LIMS\controllers\tests.js", "JavaScript", 438, 0, 0, 0, 0, 0, 1, 100, 539
+"d:\LIMS\dashboard\README.md", "Markdown", 0, 0, 0, 0, 38, 0, 0, 33, 71
+"d:\LIMS\dashboard\package-lock.json", "JSON", 0, 16591, 0, 0, 0, 0, 0, 1, 16592
+"d:\LIMS\dashboard\package.json", "JSON", 0, 51, 0, 0, 0, 0, 0, 1, 52
+"d:\LIMS\dashboard\public\index.html", "HTML", 0, 0, 0, 0, 0, 23, 4, 2, 29
+"d:\LIMS\dashboard\public\manifest.json", "JSON", 0, 25, 0, 0, 0, 0, 0, 1, 26
+"d:\LIMS\dashboard\src\App.css", "CSS", 0, 0, 0, 19, 0, 0, 0, 3, 22
+"d:\LIMS\dashboard\src\App.js", "JavaScript", 17, 0, 0, 0, 0, 0, 8, 1, 26
+"d:\LIMS\dashboard\src\components\layout\CustomDrawer.jsx", "JavaScript React", 0, 0, 25, 0, 0, 0, 0, 8, 33
+"d:\LIMS\dashboard\src\components\layout\Dashboard.jsx", "JavaScript React", 0, 0, 182, 0, 0, 0, 0, 18, 200
+"d:\LIMS\dashboard\src\components\layout\Loginform.jsx", "JavaScript React", 0, 0, 57, 0, 0, 0, 0, 7, 64
+"d:\LIMS\dashboard\src\components\layout\Topbar.jsx", "JavaScript React", 0, 0, 19, 0, 0, 0, 0, 3, 22
+"d:\LIMS\dashboard\src\components\navigation\Dashnav.jsx", "JavaScript React", 0, 0, 57, 0, 0, 0, 15, 11, 83
+"d:\LIMS\dashboard\src\components\pages\AddPatient.jsx", "JavaScript React", 0, 0, 184, 0, 0, 0, 1, 12, 197
+"d:\LIMS\dashboard\src\components\pages\AddRole.jsx", "JavaScript React", 0, 0, 58, 0, 0, 0, 0, 8, 66
+"d:\LIMS\dashboard\src\components\pages\AddRolePermission.jsx", "JavaScript React", 0, 0, 58, 0, 0, 0, 0, 8, 66
+"d:\LIMS\dashboard\src\components\pages\AddTest.jsx", "JavaScript React", 0, 0, 138, 0, 0, 0, 1, 13, 152
+"d:\LIMS\dashboard\src\components\pages\AddTestData.jsx", "JavaScript React", 0, 0, 127, 0, 0, 0, 1, 12, 140
+"d:\LIMS\dashboard\src\components\pages\Login.jsx", "JavaScript React", 0, 0, 27, 0, 0, 0, 0, 3, 30
+"d:\LIMS\dashboard\src\components\pages\ManageBill.jsx", "JavaScript React", 0, 0, 121, 0, 0, 0, 1, 16, 138
+"d:\LIMS\dashboard\src\components\pages\ManagePatients.jsx", "JavaScript React", 0, 0, 140, 0, 0, 0, 1, 12, 153
+"d:\LIMS\dashboard\src\components\pages\ManageRolePer.jsx", "JavaScript React", 0, 0, 110, 0, 0, 0, 1, 13, 124
+"d:\LIMS\dashboard\src\components\pages\ManageSamples.jsx", "JavaScript React", 0, 0, 60, 0, 0, 0, 29, 11, 100
+"d:\LIMS\dashboard\src\components\pages\ManageTst.jsx", "JavaScript React", 0, 0, 122, 0, 0, 0, 1, 16, 139
+"d:\LIMS\dashboard\src\components\pages\OrderTest.jsx", "JavaScript React", 0, 0, 58, 0, 0, 0, 0, 5, 63
+"d:\LIMS\dashboard\src\components\pages\OrderTst.jsx", "JavaScript React", 0, 0, 145, 0, 0, 0, 1, 10, 156
+"d:\LIMS\dashboard\src\components\pages\Sample.jsx", "JavaScript React", 0, 0, 84, 0, 0, 0, 0, 7, 91
+"d:\LIMS\dashboard\src\components\pages\Sampledata.jsx", "JavaScript React", 0, 0, 82, 0, 0, 0, 0, 10, 92
+"d:\LIMS\dashboard\src\context\auth\AuthState.js", "JavaScript", 43, 0, 0, 0, 0, 0, 0, 15, 58
+"d:\LIMS\dashboard\src\context\auth\authContext.js", "JavaScript", 3, 0, 0, 0, 0, 0, 0, 3, 6
+"d:\LIMS\dashboard\src\context\auth\authReducer.js", "JavaScript", 18, 0, 0, 0, 0, 0, 0, 4, 22
+"d:\LIMS\dashboard\src\context\types.js", "JavaScript", 4, 0, 0, 0, 0, 0, 0, 2, 6
+"d:\LIMS\dashboard\src\index.js", "JavaScript", 11, 0, 0, 0, 0, 0, 3, 3, 17
+"d:\LIMS\dashboard\src\reportWebVitals.js", "JavaScript", 12, 0, 0, 0, 0, 0, 0, 2, 14
+"d:\LIMS\dashboard\src\setupTests.js", "JavaScript", 1, 0, 0, 0, 0, 0, 4, 1, 6
+"d:\LIMS\dashboard\src\sidbar.js", "JavaScript", 40, 0, 0, 0, 0, 0, 0, 9, 49
+"d:\LIMS\dashboard\src\test.jsx", "JavaScript React", 0, 0, 9, 0, 0, 0, 0, 2, 11
+"d:\LIMS\middlewear\async.js", "JavaScript", 3, 0, 0, 0, 0, 0, 0, 2, 5
+"d:\LIMS\middlewear\error.js", "JavaScript", 8, 0, 0, 0, 0, 0, 4, 7, 19
+"d:\LIMS\package-lock.json", "JSON", 0, 2569, 0, 0, 0, 0, 0, 1, 2570
+"d:\LIMS\package.json", "JSON", 0, 35, 0, 0, 0, 0, 0, 1, 36
+"d:\LIMS\routes\auth.js", "JavaScript", 7, 0, 0, 0, 0, 0, 0, 7, 14
+"d:\LIMS\routes\patient.js", "JavaScript", 10, 0, 0, 0, 0, 0, 0, 4, 14
+"d:\LIMS\routes\tests.js", "JavaScript", 20, 0, 0, 0, 0, 0, 0, 4, 24
+"d:\LIMS\server.js", "JavaScript", 31, 0, 0, 0, 0, 0, 4, 18, 53
+"d:\LIMS\util\errorResponse.js", "JavaScript", 8, 0, 0, 0, 0, 0, 0, 3, 11
+"d:\LIMS\util\password.js", "JavaScript", 7, 0, 0, 0, 0, 0, 0, 1, 8
+"Total", "-", 998, 19271, 1863, 19, 38, 23, 106, 488, 22806
