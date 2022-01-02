@@ -32,10 +32,11 @@ setalltsts(res.data)
   }
 
   const sub = async () => {
-    if (test === "" || sample === "" || desc === "" || unit === "" || partest === '') {
+    if (test === "" || sample === "" || desc === "" || unit === "" ) {
       alert("Please Fill All Fields");
     } else {
       try {
+        console.log(partest)
         const res = await axios.post(
           "/api/v1/tests/addtestdata",
           {
@@ -79,7 +80,7 @@ setalltsts(res.data)
               <Form.Select
               value={partest}
                 aria-label="Select Gender"
-                onChange={(e) => setpartest(e.target.value)}
+                onChange={(e) => setpartest(e.target.value) }
                
               >
                    

@@ -1,0 +1,37 @@
+{
+  "name": "lims",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "NODE_ENV=production node server",
+    "dev": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "npm start --prefix dashboard",
+    "con": "concurrently \"npm run dev\" \"npm run client\""
+  },
+  "author": "Muhammad Touseef",
+  "license": "ISC",
+  "dependencies": {
+    "base64topdf": "^1.1.8",
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "concurrently": "^6.4.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "easyinvoice": "^2.2.4",
+    "express": "^4.17.1",
+    "generate-password": "^1.7.0",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
+    "mongoose": "^6.1.4",
+    "morgan": "^1.10.0",
+    "oracledb": "^5.3.0",
+    "pdf-invoice": "^1.0.2",
+    "uniqid": "^5.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

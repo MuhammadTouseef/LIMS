@@ -115,7 +115,7 @@ export const ManagePatients = () => {
             <th>Email</th>
             <th>Gender</th>
             <th>Edit</th>
-            <th>View More</th>
+         
           </tr>
         </thead>
         <tbody>
@@ -138,10 +138,7 @@ export const ManagePatients = () => {
                     Edit
                   </Button>
                 </td>
-                <td>
-                  {" "}
-                  <Button variant="success">More</Button>
-                </td>
+                
               </tr>,
             ];
           })}
