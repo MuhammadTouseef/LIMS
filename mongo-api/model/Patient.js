@@ -47,7 +47,12 @@ const PatientSchema = new mongoose.Schema({
     },
     Bill : {
       type: Array
-    }
+    },
+
+   Samples:{
+     type: Array
+   }
+   
    
   });
 

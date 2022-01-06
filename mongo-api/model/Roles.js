@@ -11,9 +11,15 @@ const RoleSchema = new mongoose.Schema({
       },
     
       permission : {
-        _id: true,
+      
         type: Array
       }
+        , 
+      subitms : {
+       
+        type: Array
+      }
+      
 }
 )
 

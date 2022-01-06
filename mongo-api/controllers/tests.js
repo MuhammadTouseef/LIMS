@@ -10,6 +10,8 @@ var easyinvoice = require("easyinvoice");
 const base64 = require("base64topdf");
 const Test = require("../model/Test");
 const Roles = require("../model/Roles");
+const Patient = require("../model/Patient");
+const Bill = require("../model/Bill");
 exports.addtest = asyncHandler(async (req, res, next) => {
   try {
     const { testname, sample, time, cost } = req.body;
@@ -193,14 +195,17 @@ exports.addrole = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
     const { role } = req.body;
-    const rid = Math.floor(Math.random() * 9999999);
-    const resu = await con.execute(
-      `insert into NEWLIMS.ROLES (ROLEID, NAME)
-        values (:a,:b)`,
-      [rid, role],
-      { autoCommit: true }
-    );
-    await con.close();
+    // const rid = Math.floor(Math.random() * 9999999);
+    // const resu = await con.execute(
+    //   `insert into NEWLIMS.ROLES (ROLEID, NAME)
+    //     values (:a,:b)`,
+    //   [rid, role],
+    //   { autoCommit: true }
+    // );
+    // await con.close();
+    const resu = await Roles.create({
+      title: role
+    })
     res.status(200).json({
       status: "Success",
       message: "Added Successfully",
@@ -271,21 +276,19 @@ exports.addbill = asyncHandler(async (req, res, next) => {
     let con = await oracledb.getConnection(connection());
 
     const { tests, pid } = req.body;
-    const patid = parseInt(pid);
+    const patid = pid;
     const values = tests.map((a) => a["value"]);
     var totalcost = 0;
-
+var testids = []
     await Promise.all(
-      values.map(async (one) => {
-        let resu = await con.execute(
-          `select cost from test where TESTID = :a
-        `,
-          [one]
-        );
+      values.map(async (one) => {        
 
-        totalcost += parseInt(resu.rows[0][0]);
+        let resu = await Test.findById(one, 'cost  _id')
+        totalcost += parseInt(resu['cost']);
+        testids.push(resu['_id'].toString())
       })
     );
+ 
     const tax = parseInt(totalcost * 0.17);
     const grandtotal = totalcost + tax;
     console.log(grandtotal);
@@ -298,28 +301,43 @@ exports.addbill = asyncHandler(async (req, res, next) => {
     const tok = jwt.verify(req.headers["x-emp-ath"], process.env.JWT_SECRET);
     const eid = parseInt(tok.id);
 
-    let resu = await con.execute(
-      `insert into BILL ( COST, TAXES, TOTAL, EMPLOYEE_EMPLOYEE_ID, PATIENT_PATIENTID, PASSWORD)
-values (:a,:b,:c,:d,:e,:f) `,
-      [totalcost, tax, grandtotal, eid, patid, password],
-      { autoCommit: true }
-    );
 
-    let billid = await con.execute(`SELECT max(BILLID) FROM BILL `);
-    billid = parseInt(billid.rows[0][0]);
-    await Promise.all(
-      values.map(async (one) => {
-        let resu = await con.execute(
-          `insert into BILL_TEST (BILL_BILLID, TEST_TESTID)
-          values (:a,:b)
-          `,
-          [billid, one],
-          { autoCommit: true }
-        );
-      })
-    );
+//     let resu = await con.execute(
+//       `insert into BILL ( COST, TAXES, TOTAL, EMPLOYEE_EMPLOYEE_ID, PATIENT_PATIENTID, PASSWORD)
+// values (:a,:b,:c,:d,:e,:f) `,
+//       [totalcost, tax, grandtotal, eid, patid, password],
+//       { autoCommit: true }
+//     );
+// const rid = uniqid();
 
-    await con.close();
+
+    let resu = await Bill.create({
+      patientid : patid,
+      Tests: testids,
+   
+      cost: totalcost,
+      tax: tax,
+      grandTotal: grandtotal,
+      password: password
+    })
+
+
+
+    // let billid = await con.execute(`SELECT max(BILLID) FROM BILL `);
+    // billid = parseInt(billid.rows[0][0]);
+    // await Promise.all(
+    //   values.map(async (one) => {
+    //     let resu = await con.execute(
+    //       `insert into BILL_TEST (BILL_BILLID, TEST_TESTID)
+    //       values (:a,:b)
+    //       `,
+    //       [billid, one],
+    //       { autoCommit: true }
+    //     );
+    //   })
+    // );
+
+    // await con.close();
     res.status(200).json({
       status: "Success",
       message: "Added Successfully",
@@ -342,13 +360,22 @@ exports.addsample = asyncHandler(async (req, res, next) => {
     var currentDate = new Date();
     const takenat = moment(currentDate).format("YYYY-MM-DD HH:mm:ss");
 
-    const resu = await con.execute(
-      `insert into NEWLIMS.SAMPLE ( TAKENAT, STATUS, EMPLOYEE_EMPLOYEE_ID, BILL_BILLID,
-          TEST_TESTID)
-values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:d,:e,:f)`,
-      [takenat, status, empid, billid, testid],
-      { autoCommit: true }
-    );
+//     const resu = await con.execute(
+//       `insert into NEWLIMS.SAMPLE ( TAKENAT, STATUS, EMPLOYEE_EMPLOYEE_ID, BILL_BILLID,
+//           TEST_TESTID)
+// values (TO_DATE(:a, 'YYYY-MM-DD HH24:MI:SS'),:b,:d,:e,:f)`,
+//       [takenat, status, empid, billid, testid],
+//       { autoCommit: true }
+//     );
+const rid = uniqid();
+let resu = await Bill.findById(billid)
+resu.samples.push({
+  sid: rid,
+  takenat: takenat,
+  status: status,
+})
+
+resu.save()
     await con.close();
     res.status(200).json({
       status: "Success",
@@ -371,42 +398,19 @@ exports.sampleresult = asyncHandler(async (req, res, next) => {
     const empid = parseInt(tok.id);
     var currentDate = new Date();
     const takenat = moment(currentDate).format("YYYY-MM-DD HH:mm:ss");
-    let resu = await con.execute(
-      `insert into SAMLERESLTS (RESULT, COMNT,  SAMPLE_SAMPLEID)
-        values (:a,:b,:c)`,
-      [result, comment, sampleid],
-      { autoCommit: true }
-    );
-
-    resu = await con.execute(`SELECT MAX(ID) FROM SAMLERESLTS`);
-    const sampleresid = resu.rows[0][0];
-    resu = await con.execute(
-      `SELECT BILL_BILLID, TEST_TESTID FROM SAMPLE
-        WHERE  SAMPLEID = :a`,
-      [sampleid]
-    );
-
-    const billid = resu.rows[0][0];
-    const testid = resu.rows[0][1];
-    resu = await con.execute(
-      `SELECT PATIENTID FROM BILL JOIN PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
-        WHERE BILLID = :a`,
-      [billid]
-    );
-    const pid = resu.rows[0][0];
-    const rid = uniqid("LIMS-");
-    resu = await con.execute(
-      `insert into NEWLIMS.REPORT ( REPORTID, PATIENT_PATIENTID, EMPLOYEE_EMPLOYEE_ID, GENERATEDAT, SAMPLE_SAMPLEID,
-          BILL_BILLID, TEST_TESTID)
-values (:z,:a,:b,TO_DATE(:c, 'YYYY-MM-DD HH24:MI:SS'),:d,:e,:f)`,
-      [rid, pid, empid, takenat, sampleid, billid, testid],
+    let resu = await Bill.findOne(
       {
-        autoCommit: true,
+        "samples.sid": sampleid
       }
-    );
+    )
+    resu.results.push({
+      "takenat": takenat,
+      result: result,
+      "sample": sampleid
+    })
+    resu.save();
 
-    await con.close();
-    res.status(200).json({
+     res.status(200).json({
       status: "Success",
       message: "Added Successfully",
     });
@@ -421,15 +425,29 @@ values (:z,:a,:b,TO_DATE(:c, 'YYYY-MM-DD HH24:MI:SS'),:d,:e,:f)`,
 
 exports.getallsamples = asyncHandler(async (req, res, next) => {
   try {
-    let con = await oracledb.getConnection(connection());
 
-    const resu = await con.execute(
-      `SELECT SAMPLEID, TAKENAT, STATUS, BILLID, FIRST_NAME, LAST_NAME , PATIENT_PATIENTID
-        FROM SAMPLE JOIN BILL B on B.BILLID = SAMPLE.BILL_BILLID JOIN PATIENT P on P.PATIENTID = B.PATIENT_PATIENTID
-        ORDER BY SAMPLEID DESC`
-    );
-    await con.close();
-    res.status(200).json(resu.rows);
+const resu = await Bill.find().populate('patientid').select()
+var resa = [];
+let tem = [];
+
+resu.map((e)=>{
+  
+  e['samples'].map((a)=>{
+    tem = [];
+tem.push(a['sid'])
+tem.push(a['takenat'])
+tem.push(a['status'])
+tem.push(e['_id'])
+tem.push(e['patientid'].firstName )
+tem.push(e['patientid'].lastName )
+tem.push(e['patientid']._id )
+resa.push(tem)
+  })
+})
+
+
+
+    res.status(200).json(resa);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -441,15 +459,24 @@ exports.getallsamples = asyncHandler(async (req, res, next) => {
 
 exports.getallbills = asyncHandler(async (req, res, next) => {
   try {
-    let con = await oracledb.getConnection(connection());
+    const resu = await Bill.find().populate('patientid').select()
+var resa = [];
+let tem = [];
 
-    const resu = await con.execute(
-      `SELECT BILLID, PATIENTID, FIRST_NAME,  LAST_NAME , PASSWORD, COST, TAXES, TOTAL FROM BILL JOIN
-        PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
-    ORDER BY BILLID DESC `
-    );
-    await con.close();
-    res.status(200).json(resu.rows);
+resu.map((e)=>{
+tem = []
+tem.push(e['_id'])
+tem.push(e['patientid']._id )
+tem.push(e['patientid'].firstName )
+tem.push(e['patientid'].lastName )
+tem.push(e['password'])
+tem.push(e['cost'])
+tem.push(e['tax'])
+tem.push(e['grandtotal'])
+resa.push(tem)
+
+})
+  res.status(200).json(resa);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -488,26 +515,49 @@ exports.getinvoice = asyncHandler(async (req, res, next) => {
 
     // const {billid} = req.body;
     const billid = req.params.id;
-    const resu = await con.execute(
-      `SELECT  PATIENTID, FIRST_NAME,  LAST_NAME , PASSWORD, COST, TAXES, TOTAL FROM BILL JOIN
-        PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
-WHERE BILLID = :a
-    ORDER BY BILLID DESC
-`,
-      [billid]
-    );
+    const resu = await Bill.find({
+      "_id": billid
+    }).populate('Tests')
+    console.log(resu)
+    console.log("***********")
+    var resa = [];
+    let tem = [];
+    let tem2 = [];
+    var billdetails = [];
+    let initr;
+    await Promise.all(
+    resu.map((e)=>{
+    tem = []
+    tem.push(e['_id'])
+    tem.push(e['patientid']._id )
+    tem.push(e['patientid'].firstName )
+    tem.push(e['patientid'].lastName )
+    tem.push(e['password'])
+    tem.push(e['cost'])
+    tem.push(e['tax'])
+    tem.push(e['grandTotal'])
+ 
+e['Tests'].map( async (a)=>{
+  tem2 = [];
 
-    const billdetails = await con.execute(
-      `
-        SELECT TESTID, TESTNAME, TEST.COST FROM TEST JOIN BILL_TEST BT on TEST.TESTID = BT.TEST_TESTID JOIN BILL B on BT.BILL_BILLID = B.BILLID
-WHERE BILLID = :a
-        `,
-      [billid]
-    );
-    await con.close();
+  initr = await Test.findById(a)
+ tem2.push(initr['_id'])
+ tem2.push(initr['testname'])
+ tem2.push(initr['cost'])
+
+ billdetails.push(tem2)
+
+})
+    resa.push(tem)
+    
+    })
+    )
+   console.log(resa)
+   console.log(billdetails)
+
     let tabl = "";
 
-    billdetails.rows.map((e) => {
+    billdetails.map((e) => {
       let x = ` 
 
        <tr>
