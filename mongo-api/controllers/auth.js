@@ -7,6 +7,7 @@ var jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { hashpas } = require("../util/password");
 const Employee = require("../model/Employee");
+const Roles = require("../model/Roles");
 
 // @desc  Register Employee
 // @route POST /api/v1/auth/empreg
@@ -37,7 +38,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     var currentDate = new Date();
     const dat = moment(dob).format('YYYY-MM-DD HH:mm:ss')
 
-   
+   console.log(role)
     const result = await Employee.create({
       firstname: firstname,
       lastname: lastname,
@@ -49,6 +50,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       username: username,
       password : pw,    
       email : email,
+      Role: role
     })
 
     res.status(200).json({
@@ -71,7 +73,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   try {
     
     const { username, password } = req.body;   
-    const user = await Employee.findOne({ username }).select('+password');
+    const user = await Employee.findOne({ username });
     console.log(user)
     if (!user) {
       res.status(401).json({
@@ -90,8 +92,9 @@ exports.login = asyncHandler(async (req, res, next) => {
         message: "Invalid Crd",
       });
     }
+
     var jwttoken = jwt.sign(
-          { id: user['_id'], role: 123 },
+          { id: user['_id'], role: user['Role'].toString()},
           process.env.JWT_SECRET,
           {
             expiresIn: process.env.JWT_EXPIRE,
@@ -124,29 +127,15 @@ exports.navbar = asyncHandler(async (req, res, next) => {
     let con = await oracledb.getConnection(connection());
 
     const tok = jwt.verify(req.headers['x-emp-ath'], process.env.JWT_SECRET);
-    const rol = parseInt(tok.role);
-console.log(rol)
-    const result = await con.execute(
-      `SELECT ROLEID, ROLEPERMISSIONS_ID, TITLE FROM  ROLES JOIN
-      ROLES_ROLEPERMISSIONS RR on ROLES.ROLEID = RR.ROLES_ROLEID JOIN
-      ROLEPERMISSIONS R on R.ID = RR.ROLEPERMISSIONS_ID
-  WHERE ROLEID = 
-  
-   :id `,
-      [rol]
-    );
-    var fr = [];
-
-    await Promise.all(
-      result.rows.map(async (ar) => {
-        let sub = await con.execute(
-          `SELECT TITLE,LINK FROM ROLESUBITEM WHERE ROLEPERMISSIONS_ID = :id `,
-          [ar[1]]
-        );
-        ar.push(sub.rows);
-        fr.push(ar);
-      })
-    );
+    console.log("***********")
+console.log(tok.role)
+console.log("***********")
+const resu = await Roles.findById(tok.role)
+console.log(resu)
+let fr = []
+resu['permission'].map((a)=>{
+ fr.push([1,1,a['name'],a['subitms']])
+})
 
     await res.status(200).send(fr);
   } catch (error) {
@@ -165,12 +154,14 @@ console.log(rol)
 exports.getroles = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   
-    const resu = await con.execute(
-      `SELECT * FROM ROLES`
-    );
-    await con.close();
-    res.status(200).json(resu.rows);
+   const resu = await Roles.find().select('title _id')
+   var fr = []
+   resu.map((a)=>{
+fr.push([a['_id'], a['title']])
+   })
+  
+  
+    res.status(200).json(fr);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -212,21 +203,9 @@ exports.deleteroles = asyncHandler(async (req, res, next) => {
     let con = await oracledb.getConnection(connection());
    const {value} = req.body;
    
-   const roleid = parseInt(value)
-   console.log(roleid)
+   const roleid = value
+let  resu = await Roles.findByIdAndDelete(value) 
 
-    let resu = await con.execute(
-      `delete 
-      from ROLES_ROLEPERMISSIONS
-      where ROLES_ROLEID = :a `,[roleid],{autoCommit: true}
-    );
-    console.log(resu)
-     resu = await con.execute(
-      `delete 
-      from ROLES
-      where ROLEID = :a `,[roleid],{autoCommit: true}
-    );
-    await con.close();
     res.status(200).json({
       success : true
     });
@@ -238,8 +217,6 @@ exports.deleteroles = asyncHandler(async (req, res, next) => {
     });
   }
 });
-
-
 
 
 
