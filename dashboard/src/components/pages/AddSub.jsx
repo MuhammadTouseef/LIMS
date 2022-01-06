@@ -1,9 +1,10 @@
 import { React, useState } from "react";
 import { Form, Row, Col, Container, Button } from "react-bootstrap";
 import axios from "axios";
-export const AddRolePermission = () => {
+export const AddSub = () => {
   const [role, setrole] = useState("");
   const [roleid, setroleid] = useState("");
+  const [lnk, setlnk] = useState("");
 
   const sub = async () => {
     if (role === "" ) {
@@ -11,10 +12,11 @@ export const AddRolePermission = () => {
     } else {
       try {
         const res = await axios.post(
-          "/api/v1/tests/addrolepermission",
+          "/api/v1/tests/addrolepermissionsub",
           {
             title: role,
-            roleid: roleid
+            content: roleid,
+            link: lnk
            
           },
           {
@@ -36,7 +38,7 @@ export const AddRolePermission = () => {
   return (
     <div>
       <h1 style={{ textAlign: "center" }} className="my-2 pg-title">
-        Add Role Permission
+        Add Sub Item
       </h1>
       <br />
       <Container className="my-3">
@@ -44,7 +46,7 @@ export const AddRolePermission = () => {
           <Col sm={8}>
             {" "}
             <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label>Permission Name</Form.Label>
+              <Form.Label>Main Permission Name </Form.Label>
               <Form.Control
                 type="text"
                 value={role}
@@ -53,12 +55,22 @@ export const AddRolePermission = () => {
               />
             </Form.Group>
             <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label>Role ID (For Mongo Only)</Form.Label>
+              <Form.Label>Sub Item</Form.Label>
               <Form.Control
                 type="text"
                 value={roleid}
                 placeholder="Enter Permission Name"
                 onChange={(e) => setroleid(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formFile" className="mb-3">
+              <Form.Label>Link</Form.Label>
+              <Form.Control
+                type="text"
+                value={lnk}
+                placeholder="Enter Permission Name"
+                onChange={(e) => setlnk(e.target.value)}
               />
             </Form.Group>
             <div className="d-grid gap-2">

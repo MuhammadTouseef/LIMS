@@ -34,7 +34,7 @@ exports.addtest = asyncHandler(async (req, res, next) => {
 
 exports.updatetest = asyncHandler(async (req, res, next) => {
   try {
-    let con = await oracledb.getConnection(connection());
+   
     const { testname, sample, time, cost, testid } = req.body;
     const tm = parseInt(time);
     const cs = parseInt(cost);
@@ -73,12 +73,7 @@ exports.updatetest = asyncHandler(async (req, res, next) => {
 
 exports.getall = asyncHandler(async (req, res, next) => {
   try {
-    // let con = await oracledb.getConnection(connection());
 
-    // const resu = await con.execute(
-    //   `SELECT TESTNAME,TESTID FROM TEST`
-    // );
-    // await con.close();
     const resu = await Test.find({}).select("_id testname");
     var fr = [];
     resu.map((e) => {
@@ -221,16 +216,16 @@ exports.addrole = asyncHandler(async (req, res, next) => {
 
 exports.addrolepermission = asyncHandler(async (req, res, next) => {
   try {
-    let con = await oracledb.getConnection(connection());
-    const { title } = req.body;
+   
+    const { title, roleid } = req.body;
 
-    const resu = await con.execute(
-      `insert into ROLEPERMISSIONS (TITLE)
-        values (:a)`,
-      [title],
-      { autoCommit: true }
-    );
-    await con.close();
+    const resu = await Roles.findById(roleid)
+    resu.permission.push({
+      "name": title,
+      "subitms": []
+    })
+    resu.save();
+
     res.status(200).json({
       status: "Success",
       message: "Added Successfully",
@@ -243,6 +238,60 @@ exports.addrolepermission = asyncHandler(async (req, res, next) => {
     });
   }
 });
+
+
+exports.addsub = asyncHandler(async (req, res, next) => {
+  try {
+   
+    const { title, content, link } = req.body;
+
+    const resu = await Roles.find({
+      "permission.name": title
+    }).select('permission subitms')
+    
+   let upar = []
+   let y;
+resu.map(async (x)=>{
+ upar = []
+
+
+  x['permission'].map((a)=>{
+    if(a['name'] == title){
+   
+      a['subitms'].push([content, link])
+    }
+        })
+
+
+        console.log(JSON.stringify(y))  
+    
+        x.markModified('permission');
+ await x.save()
+})
+
+    // resu.permission.push([title])
+    // resu.save();
+    // const resu = await con.execute(
+    //   `insert into ROLEPERMISSIONS (TITLE)
+    //     values (:a)`,
+    //   [title],
+    //   { autoCommit: true }
+    // );
+    // await con.close();
+    res.status(200).json({
+      status: "Success",
+      message: "Added Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+});
+
+
 
 exports.testlistop = asyncHandler(async (req, res, next) => {
   try {
@@ -378,7 +427,7 @@ resu.samples.push({
 resu.save()
     await con.close();
     res.status(200).json({
-      status: "Success",
+      sampleid: sid,
       message: "Added Successfully",
     });
   } catch (error) {
@@ -403,10 +452,12 @@ exports.sampleresult = asyncHandler(async (req, res, next) => {
         "samples.sid": sampleid
       }
     )
+    const rid = uniqid();
     resu.results.push({
       "takenat": takenat,
       result: result,
-      "sample": sampleid
+      "sample": sampleid,
+      "reportid": rid
     })
     resu.save();
 
@@ -491,15 +542,26 @@ exports.billsearch = asyncHandler(async (req, res, next) => {
     let con = await oracledb.getConnection(connection());
     let { value } = req.body;
 
-    const resu = await con.execute(
-      `SELECT BILLID, PATIENTID, FIRST_NAME,  LAST_NAME , PASSWORD, COST, TAXES, TOTAL FROM BILL JOIN
-        PATIENT P on P.PATIENTID = BILL.PATIENT_PATIENTID
-        WHERE BILLID = :a
-    ORDER BY BILLID DESC `,
-      [value]
-    );
-    await con.close();
-    res.status(200).json(resu.rows);
+    const resu = await Bill.find({
+      "_id": value
+    }).populate('patientid').select()
+    var resa = [];
+    let tem = [];
+    
+    resu.map((e)=>{
+    tem = []
+    tem.push(e['_id'])
+    tem.push(e['patientid']._id )
+    tem.push(e['patientid'].firstName )
+    tem.push(e['patientid'].lastName )
+    tem.push(e['password'])
+    tem.push(e['cost'])
+    tem.push(e['tax'])
+    tem.push(e['grandtotal'])
+    resa.push(tem)
+    
+    })
+    res.status(200).json(resa);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -622,13 +684,26 @@ exports.qa = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
 
-    const resu = await con.execute(
-      `SELECT REPORTID, PATIENT_PATIENTID, BILL_BILLID FROM REPORT
-        ORDER BY BILL_BILLID DESC `
-    );
+    // const resu = await con.execute(
+    //   `SELECT REPORTID, PATIENT_PATIENTID, BILL_BILLID FROM REPORT
+    //     ORDER BY BILL_BILLID DESC `
+    // );
+    var result = []
+    let tmp = []
+    const resu = await Bill.find().select('results patientid _id')
+    resu.map((e)=>{
+e['results'].map((a)=>{
+  tmp = []
+  tmp.push(a['reportid'])
+  tmp.push(e['patientid'])
+  tmp.push(e['_id'].toString())
+  result.push(tmp)
+})
+
+    })
 
     await con.close();
-    res.status(200).json(resu.rows);
+    res.status(200).json(result);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -640,40 +715,52 @@ exports.qa = asyncHandler(async (req, res, next) => {
 
 exports.getreport = asyncHandler(async (req, res, next) => {
   try {
-    let con = await oracledb.getConnection(connection());
+    // let con = await oracledb.getConnection(connection());
     //  const reportid = 'LIMS-ppi3e7oskxvta356'
     // const {billid} = req.body;
     const reportid = req.params.reportid;
-    const resu = await con.execute(
-      `
-        SELECT REPORTID,
-       PATIENT_PATIENTID,
-       GENERATEDAT,
-       S.BILL_BILLID,
-       RESULT,
-       COMNT,
-       FIRST_NAME,
-       LAST_NAME,
-       CNIC,
-       TESTNAME,
-       SAMPLEVALUE,
-       UNIT
-FROM REPORT
-         JOIN SAMPLE S on REPORT.SAMPLE_SAMPLEID = S.SAMPLEID
-         JOIN SAMLERESLTS S2 on S.SAMPLEID = S2.SAMPLE_SAMPLEID
-         JOIN PATIENT P on P.PATIENTID = REPORT.PATIENT_PATIENTID
-         JOIN TEST T on T.TESTID = S.TEST_TESTID
-         JOIN TESTDATA T2 on T.TESTID = T2.TEST_TESTID
+    var robj;
+    const resu = await Bill.findOne({
+      "results.reportid" : reportid
+    }).populate('patientid').populate('Tests')
+    console.log(resu)
+resu['results'].map((a) =>{
+  if(a['reportid'] == reportid){
+robj = a;
+  }
+})
+const dt = [reportid, resu['patientid']['_id'] , robj['takenat'] , resu['_id']
+, robj['result'] , '' , resu['patientid']['firstName'] , resu['patientid']['lastName']
+, resu['patientid']['cnic'] , '' , '' , '' , '' ]
+//      resu = await con.execute(
+//       `
+//         SELECT REPORTID,
+//        PATIENT_PATIENTID,
+//        GENERATEDAT,
+//        S.BILL_BILLID,
+//        RESULT,
+//        COMNT,
+//        FIRST_NAME,
+//        LAST_NAME,
+//        CNIC,
+//        TESTNAME,
+//        SAMPLEVALUE,
+//        UNIT
+// FROM REPORT
+//          JOIN SAMPLE S on REPORT.SAMPLE_SAMPLEID = S.SAMPLEID
+//          JOIN SAMLERESLTS S2 on S.SAMPLEID = S2.SAMPLE_SAMPLEID
+//          JOIN PATIENT P on P.PATIENTID = REPORT.PATIENT_PATIENTID
+//          JOIN TEST T on T.TESTID = S.TEST_TESTID
+//          JOIN TESTDATA T2 on T.TESTID = T2.TEST_TESTID
 
-WHERE REPORTID = :a
-`,
-      [reportid]
-    );
+// WHERE REPORTID = :a
+// `,
+//       [reportid]
+//     );
 
-    const data = resu.rows[0];
+    const data = dt;
 
-    await con.close();
-    console.log(data);
+ 
     const htm = `
     <style>
     table, th, td {

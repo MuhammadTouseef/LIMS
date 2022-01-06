@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+var Schema = mongoose.Schema;
 
 const EmployeeSchema = new mongoose.Schema({
     firstname: {
@@ -56,7 +56,10 @@ const EmployeeSchema = new mongoose.Schema({
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         'Please add a valid email'
       ]
-    },
+    }
+    ,
+Role: { type: Schema.Types.ObjectId, ref: 'ROLES' }
+
    
   });
   EmployeeSchema.methods.matchPassword = async function(enteredPassword) {

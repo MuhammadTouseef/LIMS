@@ -14,11 +14,7 @@ const RoleSchema = new mongoose.Schema({
       
         type: Array
       }
-        , 
-      subitms : {
        
-        type: Array
-      }
       
 }
 )

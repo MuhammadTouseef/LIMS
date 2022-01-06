@@ -125,7 +125,7 @@ export const ManageBill = () => {
             
                 <td>
                   {" "}
-                  <Button variant="success" onClick={()=> window.open(`http://localhost:8080/api/v1/tests/invoice/${e[0]}`, "", "width=600,height=500")}>Invoice</Button>
+                  <Button variant="success" onClick={()=> window.open(`http://localhost:5000/api/v1/tests/invoice/${e[0]}`, "", "width=600,height=500")}>Invoice</Button>
                 </td>
               </tr>,
             ];

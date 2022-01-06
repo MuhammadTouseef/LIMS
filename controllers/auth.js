@@ -34,7 +34,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const pw = await bcrypt.hash(password, salt);
     var currentDate = new Date();
-    const dat = moment(dob).format('YYYY-MM-DD HH:mm:ss')
+    const dat = moment(dob).format("YYYY-MM-DD HH:mm:ss");
 
     const result = await con.execute(
       `INSERT INTO EMPLOYEE ( FIRST_NAME, LAST_NAME, DOB, MOBILENUMBER,
@@ -53,11 +53,11 @@ exports.register = asyncHandler(async (req, res, next) => {
         telephone,
         address,
         cnic,
-       1,
+        1,
         username,
         pw,
         rqid,
-        email
+        email,
       ],
       { autoCommit: true }
     );
@@ -106,7 +106,7 @@ exports.login = asyncHandler(async (req, res, next) => {
         ),
         httpOnly: true,
       };
-      console.log(opt)
+      console.log(opt);
       res.status(200).cookie("token", jwttoken, opt).json({
         status: "success",
         token: jwttoken,
@@ -128,12 +128,11 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 exports.navbar = asyncHandler(async (req, res, next) => {
   try {
-    
     let con = await oracledb.getConnection(connection());
 
-    const tok = jwt.verify(req.headers['x-emp-ath'], process.env.JWT_SECRET);
+    const tok = jwt.verify(req.headers["x-emp-ath"], process.env.JWT_SECRET);
     const rol = parseInt(tok.role);
-console.log(rol)
+    console.log(rol);
     const result = await con.execute(
       `SELECT ROLEID, ROLEPERMISSIONS_ID, TITLE FROM  ROLES JOIN
       ROLES_ROLEPERMISSIONS RR on ROLES.ROLEID = RR.ROLES_ROLEID JOIN
@@ -166,17 +165,11 @@ console.log(rol)
   }
 });
 
-
-
-  
-   
 exports.getroles = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   
-    const resu = await con.execute(
-      `SELECT * FROM ROLES`
-    );
+
+    const resu = await con.execute(`SELECT * FROM ROLES`);
     await con.close();
     res.status(200).json(resu.rows);
   } catch (error) {
@@ -187,15 +180,15 @@ exports.getroles = asyncHandler(async (req, res, next) => {
     });
   }
 });
-
 
 exports.searchroles = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   const {value} = req.body;
+    const { value } = req.body;
     const resu = await con.execute(
       `SELECT * FROM ROLEPERMISSIONS JOIN ROLES_ROLEPERMISSIONS RR on ROLEPERMISSIONS.ID = RR.ROLEPERMISSIONS_ID
-      WHERE ROLES_ROLEID = :a`,[value]
+      WHERE ROLES_ROLEID = :a`,
+      [value]
     );
 
     await con.close();
@@ -209,34 +202,32 @@ exports.searchroles = asyncHandler(async (req, res, next) => {
   }
 });
 
-
-
-
-
-  
-   
 exports.deleteroles = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   const {value} = req.body;
-   
-   const roleid = parseInt(value)
-   console.log(roleid)
+    const { value } = req.body;
+
+    const roleid = parseInt(value);
+    console.log(roleid);
 
     let resu = await con.execute(
       `delete 
       from ROLES_ROLEPERMISSIONS
-      where ROLES_ROLEID = :a `,[roleid],{autoCommit: true}
+      where ROLES_ROLEID = :a `,
+      [roleid],
+      { autoCommit: true }
     );
-    console.log(resu)
-     resu = await con.execute(
+    console.log(resu);
+    resu = await con.execute(
       `delete 
       from ROLES
-      where ROLEID = :a `,[roleid],{autoCommit: true}
+      where ROLEID = :a `,
+      [roleid],
+      { autoCommit: true }
     );
     await con.close();
     res.status(200).json({
-      success : true
+      success: true,
     });
   } catch (error) {
     console.log(error);
@@ -247,18 +238,10 @@ exports.deleteroles = asyncHandler(async (req, res, next) => {
   }
 });
 
-
-
-
-
-
-
-  
-   
 exports.getroleper = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   
+
     const resu = await con.execute(
       `select *
       from ROLEPERMISSIONS;`
@@ -274,31 +257,30 @@ exports.getroleper = asyncHandler(async (req, res, next) => {
   }
 });
 
-  
-   
 exports.getassignper = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   const {value} = req.body
-   
+    const { value } = req.body;
+
     const resu = await con.execute(
       `SELECT * FROM  ROLEPERMISSIONS
       MINUS
       SELECT ID, TITLE FROM ROLEPERMISSIONS JOIN ROLES_ROLEPERMISSIONS RR on ROLEPERMISSIONS.ID = RR.ROLEPERMISSIONS_ID
       WHERE ROLES_ROLEID = :a
-      `,[value]
+      `,
+      [value]
     );
-    
+
     const data = resu.rows;
-    
-    let rf = []
-    data.map(a => {
-        let x = {
-           value: a[0],
-           label: a[1] 
-        }
-        rf.push(x)
-    })
+
+    let rf = [];
+    data.map((a) => {
+      let x = {
+        value: a[0],
+        label: a[1],
+      };
+      rf.push(x);
+    });
 
     await con.close();
     res.status(200).json(rf);
@@ -311,33 +293,28 @@ exports.getassignper = asyncHandler(async (req, res, next) => {
   }
 });
 
-
-
-
-
-  
-   
 exports.addassignper = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   const {roles,per} = req.body
-   const rid = parseInt(roles)
- 
-   const values = per.map(a => a['value'])
-  
-   await Promise.all(
- values.map(async (a)=>{
+    const { roles, per } = req.body;
+    const rid = parseInt(roles);
 
-  let resu = await con.execute(
-    `insert into ROLES_ROLEPERMISSIONS (ROLES_ROLEID, ROLEPERMISSIONS_ID)
-    values (:a,:b)`,[rid,a],{autoCommit: true}
-  );
- })
-   )
-    
+    const values = per.map((a) => a["value"]);
+
+    await Promise.all(
+      values.map(async (a) => {
+        let resu = await con.execute(
+          `insert into ROLES_ROLEPERMISSIONS (ROLES_ROLEID, ROLEPERMISSIONS_ID)
+    values (:a,:b)`,
+          [rid, a],
+          { autoCommit: true }
+        );
+      })
+    );
+
     await con.close();
     res.status(200).json({
-      success: true
+      success: true,
     });
   } catch (error) {
     console.log(error);
@@ -348,30 +325,25 @@ exports.addassignper = asyncHandler(async (req, res, next) => {
   }
 });
 
-  
-
-
-
-  
-   
 exports.deleteasp = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   const {value , pid} = req.body;
-   
-   const roleid = parseInt(value)
-   const perid = parseInt(pid)
+    const { value, pid } = req.body;
+
+    const roleid = parseInt(value);
+    const perid = parseInt(pid);
 
     let resu = await con.execute(
       `delete 
       from ROLES_ROLEPERMISSIONS
-      where ROLES_ROLEID = :a AND ROLEPERMISSIONS_ID = :b`,[roleid, perid],{autoCommit: true}
+      where ROLES_ROLEID = :a AND ROLEPERMISSIONS_ID = :b`,
+      [roleid, perid],
+      { autoCommit: true }
     );
 
-   
     await con.close();
     res.status(200).json({
-      success : true
+      success: true,
     });
   } catch (error) {
     console.log(error);
@@ -381,4 +353,3 @@ exports.deleteasp = asyncHandler(async (req, res, next) => {
     });
   }
 });
-

@@ -21,6 +21,7 @@ import { ManageRolePer } from "../pages/ManageRolePer";
 import { AssignPer } from "../pages/AssignPer";
 import { QAReport } from "../pages/QAReport";
 import { AddEmp } from "../pages/AddEmp";
+import { AddSub } from "../pages/AddSub.jsx";
 
 export const Dashboard = (props) => {
   function RequireAuth({ children, redirectTo }) {
@@ -217,6 +218,15 @@ export const Dashboard = (props) => {
               element={
                 <RequireAuth redirectTo="/login">
                   <AddEmp />
+                </RequireAuth>
+              }
+            />
+            
+            <Route
+              path="/addsub"
+              element={
+                <RequireAuth redirectTo="/login">
+                 <AddSub/>
                 </RequireAuth>
               }
             />

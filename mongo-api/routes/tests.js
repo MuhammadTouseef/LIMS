@@ -1,6 +1,6 @@
 const express = require('express');
 const { getassignper } = require('../controllers/auth');
-const { addtest, getall, addtestdata, addrole, addrolepermission, testlistop, addbill, addsample, sampleresult, getallsamples, comp, search, updatetest, getallbills, getinvoice, billsearch, qa, getreport } = require('../controllers/tests');
+const { addtest, getall, addtestdata, addrole, addrolepermission, testlistop, addbill, addsample, sampleresult, getallsamples, comp, search, updatetest, getallbills, getinvoice, billsearch, qa, getreport, addrolepermissionsub, addsub } = require('../controllers/tests');
 
 
 
@@ -12,6 +12,7 @@ router.get('/',getall)
 router.post('/addtestdata', addtestdata)
 router.post('/addrole', addrole)
 router.post('/addrolepermission', addrolepermission)
+router.post('/addrolepermissionsub', addsub)
 router.get('/listop',testlistop)
 router.post('/addbill', addbill)
 router.post('/addsample', addsample)

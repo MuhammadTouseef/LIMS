@@ -1,6 +1,6 @@
 import React from 'react'
 import { Loginform } from '../layout/Loginform'
-
+import logo from '../newlg.jpg';
 export const Login = () => {
     return (
 <section className="vh-80" style={{ backgroundColor: "#37814F" }}>
@@ -11,7 +11,7 @@ export const Login = () => {
           <div className="row g-0">
             <div className="col-md-6 col-lg-5 d-none d-md-block">
               <img
-                src="https://mdbootstrap.com/img/Photos/new-templates/bootstrap-login-form/img1.jpg"
+                src={logo}
                 alt="login form"
                 className="img-fluid"
                 style={{ borderRadius: "1rem 0 0 1rem" }}

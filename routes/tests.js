@@ -1,6 +1,6 @@
 const express = require('express');
 const { getassignper } = require('../controllers/auth');
-const { addtest, getall, addtestdata, addrole, addrolepermission, testlistop, addbill, addsample, sampleresult, getallsamples, comp, search, updatetest, getallbills, getinvoice, billsearch, qa, getreport } = require('../controllers/tests');
+const { addtest, getall, addtestdata, addrole, addrolepermission, testlistop, addbill, addsample, sampleresult, getallsamples, comp, search, updatetest, getallbills, getinvoice, billsearch, qa, getreport, stats, statis, statistics } = require('../controllers/tests');
 
 
 
@@ -24,4 +24,5 @@ router.get('/invoice/:id', getinvoice)
 router.post('/billsearch', billsearch)
 router.get('/qa', qa)
 router.get('/report/:reportid', getreport)
+router.get('/stats', statistics)
 module.exports = router;

@@ -7,7 +7,7 @@ exports.patient = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
     const { cnic } = req.body;
-    
+
     console.log(cnic);
     const result = await con.execute(
       `SELECT PATIENTID
@@ -15,7 +15,7 @@ FROM PATIENT
 WHERE CNIC = :cn`,
       [cnic]
     );
-    await con.close()
+    await con.close();
 
     res.status(200).json(result.rows);
   } catch (error) {
@@ -30,15 +30,24 @@ exports.addpatient = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
     const { firstName, lastName, dob, contact, cnic, gender, email } = req.body;
-   const resu =  await con.execute(
+    const resu = await con.execute(
       `INSERT INTO NEWLIMS.PATIENT ( FIRST_NAME, LAST_NAME, DOB, CNIC, CONTACTNUMBER, CREATEDAT, EMAIL, GENDER) VALUES (:a,:b,TO_DATE(:c, 'YYYY-MM-DD HH24:MI:SS'),:d,:e,TO_DATE(:f, 'YYYY-MM-DD HH24:MI:SS'),:g,:h)`,
-      [firstName,lastName,dob,cnic, contact, '2021-12-05 14:55:46',email,gender ],
+      [
+        firstName,
+        lastName,
+        dob,
+        cnic,
+        contact,
+        "2021-12-05 14:55:46",
+        email,
+        gender,
+      ],
       { autoCommit: true }
     );
-    await con.close()
+    await con.close();
     res.send(resu);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       status: "Failed",
       message: error,
@@ -46,14 +55,13 @@ exports.addpatient = asyncHandler(async (req, res, next) => {
   }
 });
 
-
 exports.editpatient = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
     const { firstName, lastName, dob, contact, pid, gender, email } = req.body;
-    const dtb = moment(dob).format('YYYY-MM-DD');
-console.log(dtb)
-   const resu =  await con.execute(
+    const dtb = moment(dob).format("YYYY-MM-DD");
+    console.log(dtb);
+    const resu = await con.execute(
       `UPDATE NEWLIMS.PATIENT
       set FIRST_NAME  = :a,
           LAST_NAME = :b,
@@ -62,13 +70,13 @@ console.log(dtb)
           EMAIL = :e,
           GENDER = :f
       where PATIENTID = :g`,
-      [firstName,lastName,dtb, contact ,email,gender,pid ],
+      [firstName, lastName, dtb, contact, email, gender, pid],
       { autoCommit: true }
     );
-    await con.close()
+    await con.close();
     res.send(resu);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       status: "Failed",
       message: error,
@@ -76,22 +84,20 @@ console.log(dtb)
   }
 });
 
-
-
 exports.patientdetails = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
     const { cnic } = req.body;
-    
-    console.log(cnic)
+
+    console.log(cnic);
     const result = await con.execute(
       `SELECT *
 FROM PATIENT
 WHERE CNIC = :cn`,
       [cnic]
     );
-    
-    await con.close()
+
+    await con.close();
 
     res.status(200).json(result.rows);
   } catch (error) {
@@ -105,7 +111,7 @@ WHERE CNIC = :cn`,
 exports.getallpatient = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-    console.log("OK")
+    console.log("OK");
 
     const resu = await con.execute(
       `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
@@ -114,7 +120,7 @@ exports.getallpatient = asyncHandler(async (req, res, next) => {
       ORDER BY PATIENTID DESC`
     );
 
-          await con.close();
+    await con.close();
     res.status(200).json(resu.rows);
   } catch (error) {
     console.log(error);
@@ -124,66 +130,59 @@ exports.getallpatient = asyncHandler(async (req, res, next) => {
     });
   }
 });
-
-
 
 exports.searchp = asyncHandler(async (req, res, next) => {
   try {
     let con = await oracledb.getConnection(connection());
-   
-const {tp,value} = req.body;
-var resu;
-if (tp === 'NAME'){
-   resu = await con.execute(
-    `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
+
+    const { tp, value } = req.body;
+    var resu;
+    if (tp === "NAME") {
+      resu = await con.execute(
+        `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
     FROM PATIENT
     WHERE
     REGEXP_LIKE(FIRST_NAME || LAST_NAME , :a)
 
-    ORDER BY PATIENTID DESC`,[value]
-  );
-  await con.close();
-}else if (tp == 'CNIC'){
-
-  resu = await con.execute(
-    `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
+    ORDER BY PATIENTID DESC`,
+        [value]
+      );
+      await con.close();
+    } else if (tp == "CNIC") {
+      resu = await con.execute(
+        `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
     FROM PATIENT
     WHERE CNIC = :y
-    ORDER BY PATIENTID DESC`,[value]
-  );
-  await con.close();
-           
-  if(resu.rows.length >=1){
-    res.status(200).json(resu.rows);
-   }else{
-    res.status(404).json({
-      status: "Not Found",
-     
-    });
-   }
- 
-}
-else{
-  
-  resu = await con.execute(
-    `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
+    ORDER BY PATIENTID DESC`,
+        [value]
+      );
+      await con.close();
+
+      if (resu.rows.length >= 1) {
+        res.status(200).json(resu.rows);
+      } else {
+        res.status(404).json({
+          status: "Not Found",
+        });
+      }
+    } else {
+      resu = await con.execute(
+        `SELECT PATIENTID, FIRST_NAME, LAST_NAME, CNIC, CONTACTNUMBER , EMAIL, GENDER
     FROM PATIENT
     WHERE PATIENTID = :y
-    ORDER BY PATIENTID DESC`,[value]
-  );
-  await con.close();
-           
-  if(resu.rows.length >=1){
-    res.status(200).json(resu.rows);
-   }else{
-    res.status(404).json({
-      status: "Not Found",
-     
-    });
-   }
-}
+    ORDER BY PATIENTID DESC`,
+        [value]
+      );
+      await con.close();
 
-
+      if (resu.rows.length >= 1) {
+        res.status(200).json(resu.rows);
+      } else {
+        res.status(404).json({
+          status: "Not Found",
+        });
+      }
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -192,9 +191,3 @@ else{
     });
   }
 });
-
-
-
-
-
-
